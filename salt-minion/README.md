@@ -1,7 +1,7 @@
 # Atomic salt-minion container managed by systemd
 
 
-```
+
 
 # create service and enable it
 ```
