@@ -1,0 +1,27 @@
+[Unit]
+After=docker.service
+Requires=docker.service
+PartOf=docker.service
+After=docker.service
+Wants=docker.service
+
+[Service]
+#EnvironmentFile=/etc/sysconfig/node_exporter
+ExecStartPre=-/usr/bin/docker rm -f node_exporter
+ExecStart=/usr/bin/docker run  -p 9100:9100 \
+  -v "/proc:/host/proc" \
+  -v "/sys:/host/sys" \
+  -v "/:/rootfs" \
+  --net="host" \
+  --name node_exporter
+  --rm \
+  quay.io/prometheus/node-exporter \
+    -collector.procfs /host/proc \
+    -collector.sysfs /host/sys \
+    -collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($|/)"
+ExecStop=/usr/bin/docker stop node_exporter
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=docker.service
