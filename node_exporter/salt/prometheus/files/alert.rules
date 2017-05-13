@@ -1,0 +1,94 @@
+ALERT InstanceDown  
+  IF up == 0
+  FOR 3m
+  LABELS {
+    severity = "page",
+    instance = "{{ $labels.instance }}"
+  }
+  ANNOTATIONS {
+    summary = "Instance {{ $labels.instance }} is down",
+    description = "Down for more than 3 minutes"
+  }
+
+ALERT InstanceHighCpu  
+  IF 100 - (avg by (instance) (rate(node_cpu{mode="idle"}[5m])) * 100) > 90
+  FOR 1m
+  LABELS {
+    severity = "page",
+    instance = "{{ $labels.instance }}"
+  }
+  ANNOTATIONS {
+    summary = "Instance {{ $labels.instance }}: cpu high",
+    description = "High cpu activity ({{ $value }})"
+  }
+
+ALERT InstanceLowMemory  
+  IF node_memory_MemAvailable/1024/1024 < 256
+  FOR 1m
+  LABELS {
+    severity = "page",
+    instance = "{{ $labels.instance }}"
+  }
+  ANNOTATIONS {
+    summary = "Instance {{ $labels.instance }}: memory low",
+    description = "Only {{ $value }} MB of free memory left"
+  }
+
+ALERT InstanceLowDiskTotal
+  IF node_filesystem_avail{mountpoint="/"}/1024/1024 < 1024
+  FOR 1m 
+  LABELS {
+    severity = "page",
+    instance = "{{ $labels.instance }}"
+  }
+  ANNOTATIONS {
+    summary = "Instance {{ $labels.instance }}: low disk space on {{ $labels.mountpoint }}",
+    description = "Only {{ $value }} MB of free disk space left on mountpoint {{ $labels.mountpoint }} ({{ $labels.fstype }}, {{ $labels.device }})"
+  }
+
+ALERT InstanceLowDiskPercentage
+  IF 100 * (node_filesystem_free / node_filesystem_size) < 10
+  FOR 1m 
+  LABELS {
+    severity = "page",
+    instance = "{{ $labels.instance }}"
+  }
+  ANNOTATIONS {
+    summary = "Instance {{ $labels.instance }}: low disk space on {{ $labels.mountpoint }}",
+    description = "Only {{ $value }}% of free disk space left on mountpoint {{ $labels.mountpoint }} ({{ $labels.fstype }}, {{ $labels.device }})"
+  }
+
+ALERT RaidNotInSync
+  IF (node_md_blocks_synced / node_md_blocks) * 100 < 100
+  LABELS {
+    severity = "page",
+    instance = "{{ $labels.instance }}"
+  }
+  ANNOTATIONS {
+    summary = "Instance {{ $labels.instance }}: raid not in sync",
+    description = "{{ $labels.device }} is not in sync ({{ $value }}%)"
+  }
+
+ALERT BondSlaveMissing
+  IF node_net_bonding_slaves_active < node_net_bonding_slaves
+  LABELS {
+    severity = "page",
+    instance = "{{ $labels.instance }}"
+  }
+  ANNOTATIONS {
+    summary = "Instance {{ $labels.instance }}: {{ $labels.master }} missing {{ $value }} slave interface(s)",
+    description = "{{ $labels.master }} is missing {{ $value }} slave interface(s)."
+  }
+
+ALERT ServiceFailed
+  IF node_systemd_unit_state{state="failed"} > 0
+  FOR 1m
+  LABELS {
+    severity = "page",
+    instance = "{{ $labels.instance }}"
+  }
+  ANNOTATIONS {
+    summary = "Instace {{ $labels.instance }}: Service {{ $labels.name }} failed",
+    description = "{{ $labels.name }} unit went into failed state"
+  }
+
