@@ -1,4 +1,0 @@
-OPTIONS="-l info"
-#CONFIG_FILE=/etc/salt/minion
-IMAGE_VERSION=latest
-RUN_CMD="bin/salt-minion -l info"
