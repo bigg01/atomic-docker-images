@@ -1,0 +1,12 @@
+[Unit]
+Description=Node Exporter
+
+[Service]
+User=prometheus
+ExecStart=/home/prometheus/Prometheus/node_exporter/node_exporter
+
+[Install]
+WantedBy=default.target
+
+
+#https://git.darmstadt.ccc.de/ffda/salt/tree/master/prometheus/files
